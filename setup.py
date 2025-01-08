@@ -23,7 +23,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'talker = mypkg.talker:main',
+            'battery_state = mypkg.battery_state:main',
             'listener = mypkg.listener:main'
         ],
     },
