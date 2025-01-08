@@ -12,6 +12,11 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y python3-rosdep
+          
+          # 既存のrosdep設定ファイルを削除
+          sudo rm -f /etc/ros/rosdep/sources.list.d/20-default.list
+          
+          # rosdepの初期化と更新
           sudo rosdep init
           rosdep update
           rosdep install --from-paths /root/ros2_ws/src --ignore-src -r -y
