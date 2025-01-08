@@ -1,28 +1,34 @@
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Int16
+from std_msgs.msg import String
 
-class Listener(Node):
+
+class KeyboardListener(Node):
     def __init__(self):
-        super().__init__("listener")
-        self.sub = create_subscription(Int16, "countup", cd, 10)
+        super().__init__('keyboard_listener')
+        self.subscription = self.create_subscription(
+            String, 'pressed_keys', self.listener_callback, 10)
+        self.subscription  # prevent unused variable warning
 
-    def cd(self):
-        self.get_logger().info("Listen: %d" % msg.data)
+    def listener_callback(self, msg):
+        if msg.data:
+            self.get_logger().info(f"Received keys: {msg.data}")
+        else:
+            self.get_logger().info("No keys are pressed")
 
-def main():
-    rclpy.init()
-    node = Talker()
-    rclpy.spin(node)
-#    self.sub = create_subscription(Int16, "countup", cd, 10)
 
-#rclpy.init()
-#node = Node("listener")
+def main(args=None):
+    rclpy.init(args=args)
+    node = KeyboardListener()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
 
-#def cb(msg):
-#    global node
-#    node.get_logger().info("Listen: %d" % msg.data)
 
-#def main():
-#    sub = node.create_subscription(Int16, "countup", cb, 10)
-#    rclpy.spin(node)
+if __name__ == '__main__':
+    main()
+
