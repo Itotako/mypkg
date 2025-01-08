@@ -2,83 +2,62 @@
 # SPDX-FileCopyrightText: 2024 Kaito Ito
 # SPDX-License-Identifier: BSD-3-Clause
 
-dir=~
-[ "$1" != "" ] && dir="$1"
 
-# ROS2 ワークスペースをビルド
-cd $dir/ros2_ws
-colcon build
+# リセット: 以前の状態を確認
+ros2 topic list | grep "/battery_state" > /dev/null
+if [ $? -eq 0 ]; then
+  echo "battery_state トピックは既に存在します"
+else
+  echo "battery_state トピックが見つかりません"
+  exit 1
+fi
 
-# ROS2 環境を設定
-source install/setup.bash
-source $dir/.bashrc
+ros2 topic list | grep "/battery_level" > /dev/null
+if [ $? -eq 0 ]; then
+  echo "battery_level トピックは既に存在します"
+else
+  echo "battery_level トピックが見つかりません"
+  exit 1
+fi
 
-# エラーチェック用関数
-ng() {
-    echo "$1"
-    res=1  # エラー発生時にresを1に設定
-}
-
-res=0  # 初期化
-
-# battery_state_publisher ノードをバックグラウンドで実行
+# ノードをバックグラウンドで実行
 ros2 run mypkg battery_state & 
 NODE_PID=$!
 
 # 少し待機してからトピックリストを確認
 sleep 5
 
-# acpi コマンドを実行して結果を取得
-result=$( /usr/bin/acpi )
-
-# 出力結果を表示
-echo "ACPI Output: $result"
-
-# トピック '/battery_state' が存在するか確認
-ros2 topic list | grep "/battery_state" > /dev/null
-if [ $? -ne 0 ]; then
-    ng "battery_state トピックが見つかりません"
-fi
-
-# トピック '/battery_level' が存在するか確認
-ros2 topic list | grep "/battery_level" > /dev/null
-if [ $? -ne 0 ]; then
-    ng "battery_level トピックが見つかりません"
-fi
-
-# トピックの出力を確認
-timeout 10 ros2 topic echo /battery_state > output_state.log & 
+# トピックのメッセージを確認
+echo "battery_state トピックの確認"
+timeout 10 ros2 topic echo /battery_state > output_state.log &
 ECHO_STATE_PID=$!
-timeout 10 ros2 topic echo /battery_level > output_level.log & 
-ECHO_LEVEL_PID=$!
-
-# 少し待機してから出力を終了
 sleep 5
-kill "$ECHO_STATE_PID" 2>/dev/null
-kill "$ECHO_LEVEL_PID" 2>/dev/null
+kill $ECHO_STATE_PID
 
-# 出力ファイルに内容があるか確認
+echo "battery_level トピックの確認"
+timeout 10 ros2 topic echo /battery_level > output_level.log &
+ECHO_LEVEL_PID=$!
+sleep 5
+kill $ECHO_LEVEL_PID
+
+# 出力が空でないか確認
 if [ -s output_state.log ]; then
     echo "battery_state トピックの出力が確認できました"
 else
-    ng "battery_state トピックの出力がありません"
+    echo "battery_state トピックの出力がありません"
+    exit 1
 fi
 
 if [ -s output_level.log ]; then
     echo "battery_level トピックの出力が確認できました"
 else
-    ng "battery_level トピックの出力がありません"
+    echo "battery_level トピックの出力がありません"
+    exit 1
 fi
 
-# 一時的なファイルを削除
+# 一時ファイルを削除
 rm -f output_state.log output_level.log
 
-# 結果表示
-if [ "$res" -eq 0 ]; then
-    echo "OK"
-else
-    echo "エラーが発生しました"
-fi
-
-exit "$res"
+echo "テストが成功しました"
+exit 0
 
