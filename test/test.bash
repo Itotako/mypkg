@@ -1,7 +1,6 @@
 #!/bin/bash -xv
-# SPDX-FileCopyrightText: 2024 Takumi Kobayashi
+# SPDX-FileCopyrightText: 2024 Kaito Ito
 # SPDX-License-Identifier: BSD-3-Clause
-
 dir=~
 [ "$1" != "" ] && dir="$1"
 
@@ -21,18 +20,18 @@ ng() {
 
 res=0
 
-# acpi コマンドがインストールされているか確認
-if ! command -v acpi &> /dev/null; then
-    echo "acpi コマンドが見つかりません。インストールしてください。"
-    exit 1
-fi
-
 # battery_state ノードをバックグラウンドで実行
 ros2 run mypkg battery_state & 
 NODE_PID=$!
 
 # 少し待機してからトピックリストを確認
 sleep 5
+
+# acpi コマンドを実行して結果を取得
+result=$( /usr/bin/acpi )
+
+# 出力結果を表示
+echo "ACPI Output: $result"
 
 # トピック '/battery_state' が存在するか確認
 ros2 topic list | grep "/battery_state" > /dev/null
