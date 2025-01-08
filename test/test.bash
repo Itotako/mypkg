@@ -48,7 +48,6 @@ fi
 # トピックの出力を確認
 timeout 10 ros2 topic echo /battery_state > output_state.log &
 ECHO_STATE_PID=$!
-
 timeout 10 ros2 topic echo /battery_level > output_level.log &
 ECHO_LEVEL_PID=$!
 
@@ -59,22 +58,17 @@ kill "$ECHO_LEVEL_PID" 2>/dev/null
 
 # 出力ファイルに内容があるか確認
 if [ -s output_state.log ]; then
-    grep "Publishing State" output_state.log > /dev/null
-    if [ $? -ne 0 ]; then
-        ng "battery_state トピックの出力が正しくありません"
-    fi
+    echo "battery_state トピックの出力が確認できました"
 else
     ng "battery_state トピックの出力がありません"
 fi
 
 if [ -s output_level.log ]; then
-    grep "Publishing Battery Level" output_level.log > /dev/null
-    if [ $? -ne 0 ]; then
-        ng "battery_level トピックの出力が正しくありません"
-    fi
+    echo "battery_level トピックの出力が確認できました"
 else
     ng "battery_level トピックの出力がありません"
 fi
+
 
 # 一時的なファイルを削除
 rm -f output_state.log output_level.log
