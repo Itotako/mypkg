@@ -22,7 +22,7 @@ ng() {
 res=0  # 初期化
 
 # battery_state_publisher ノードをバックグラウンドで実行
-ros2 run mypkg battery_state_publisher & 
+ros2 run mypkg battery_state & 
 NODE_PID=$!
 
 # 少し待機してからトピックリストを確認
