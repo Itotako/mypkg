@@ -14,7 +14,7 @@ source $dir/.bashrc
 
 # エラーチェック用関数
 ng() {
-    echo "${1}行目が違う"
+    echo "$1"
     res=1
 }
 
