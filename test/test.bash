@@ -21,6 +21,12 @@ ng() {
 
 res=0
 
+# acpi コマンドがインストールされているか確認
+if ! command -v acpi &> /dev/null; then
+    echo "acpi コマンドが見つかりません。インストールしてください。"
+    exit 1
+fi
+
 # battery_state ノードをバックグラウンドで実行
 ros2 run mypkg battery_state & 
 NODE_PID=$!
