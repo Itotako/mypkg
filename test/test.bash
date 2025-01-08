@@ -1,63 +1,49 @@
-#!/bin/bash -xv
+#!/bin/bash
 # SPDX-FileCopyrightText: 2024 Kaito Ito
 # SPDX-License-Identifier: BSD-3-Clause
 
+set -e  # エラー発生時にスクリプトを停止
 
-# リセット: 以前の状態を確認
-ros2 topic list | grep "/battery_state" > /dev/null
-if [ $? -eq 0 ]; then
-  echo "battery_state トピックは既に存在します"
+# ディレクトリの設定
+dir=~
+[ "$1" != "" ] && dir="$1"
+
+cd $dir/ros2_ws
+
+# ワークスペースをビルドして環境をセットアップ
+colcon build
+source install/setup.bash
+
+# ログファイルの設定
+LOG_FILE="/tmp/mypkg.log"
+
+# ノードを起動してログに出力
+timeout 20 ros2 launch mypkg battery_listen.launch.py > $LOG_FILE &
+
+# ノードの起動を確認
+sleep 5  # ノードが起動するのを待機
+
+# battery_stateトピックのデータ確認
+if grep -q "Publishing State:" $LOG_FILE; then
+  echo "battery_state トピックにデータがパブリッシュされています。"
 else
-  echo "battery_state トピックが見つかりません"
+  echo "battery_state トピックにデータがパブリッシュされていません！"
+  kill %1
   exit 1
 fi
 
-ros2 topic list | grep "/battery_level" > /dev/null
-if [ $? -eq 0 ]; then
-  echo "battery_level トピックは既に存在します"
+# battery_levelトピックのデータ確認
+if grep -q "Publishing Battery Level:" $LOG_FILE; then
+  echo "battery_level トピックにデータがパブリッシュされています。"
 else
-  echo "battery_level トピックが見つかりません"
+  echo "battery_level トピックにデータがパブリッシュされていません！"
+  kill %1
   exit 1
 fi
 
-# ノードをバックグラウンドで実行
-ros2 run mypkg battery_state & 
-NODE_PID=$!
+# テスト成功
+echo "テストが成功しました！"
 
-# 少し待機してからトピックリストを確認
-sleep 5
-
-# トピックのメッセージを確認
-echo "battery_state トピックの確認"
-timeout 10 ros2 topic echo /battery_state > output_state.log &
-ECHO_STATE_PID=$!
-sleep 5
-kill $ECHO_STATE_PID
-
-echo "battery_level トピックの確認"
-timeout 10 ros2 topic echo /battery_level > output_level.log &
-ECHO_LEVEL_PID=$!
-sleep 5
-kill $ECHO_LEVEL_PID
-
-# 出力が空でないか確認
-if [ -s output_state.log ]; then
-    echo "battery_state トピックの出力が確認できました"
-else
-    echo "battery_state トピックの出力がありません"
-    exit 1
-fi
-
-if [ -s output_level.log ]; then
-    echo "battery_level トピックの出力が確認できました"
-else
-    echo "battery_level トピックの出力がありません"
-    exit 1
-fi
-
-# 一時ファイルを削除
-rm -f output_state.log output_level.log
-
-echo "テストが成功しました"
-exit 0
+# 起動したプロセスを終了
+kill %1
 
