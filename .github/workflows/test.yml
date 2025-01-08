@@ -2,13 +2,29 @@ name: test
 on: push
 jobs:
   test:
-    runs-on: ubuntu-22.04
-    container: ryuichiueda/ubuntu22.04-ros2:latest
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: build and test
-        run: |
-          rsync -av ./ /root/ros2_ws/src/mypkg/
-          cd /root/ros2_ws
-          bash -xv ./src/mypkg/test/test.bash /root
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # acpi をインストール
+    - name: Install acpi
+      run: sudo apt-get update && sudo apt-get install -y acpi
+
+    # ROS2 ワークスペースをビルド
+    - name: Build ROS2 workspace
+      run: |
+        cd ~/ros2_ws
+        colcon build
+
+    # ROS2 環境を設定
+    - name: Source ROS2 setup
+      run: |
+        source ~/ros2_ws/install/setup.bash
+        source ~/.bashrc
+
+    # スクリプトを実行
+    - name: Run the test script
+      run: |
+        bash ~/ros2_ws/src/mypkg/test/test.bash
 
