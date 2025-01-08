@@ -1,4 +1,4 @@
-name: ROS2 Test
+name: ROS2 Test Workflow
 
 on:
   push:
@@ -19,35 +19,30 @@ jobs:
 
     - name: Setup ROS2
       run: |
-        # ROS2のセットアップ
         sudo apt update
         sudo apt install -y python3-colcon-common-extensions
         sudo apt install -y acpi  # acpiコマンドをインストール
 
     - name: Install ROS2 dependencies
       run: |
-        # ROS2の依存関係をインストール
         sudo apt install -y ros-humble-desktop
 
     - name: Build the ROS2 workspace
       run: |
-        # リポジトリをros2_ws内にコピーしてビルド
         rsync -av ./ /root/ros2_ws/src/mypkg/
         cd /root/ros2_ws
         colcon build --symlink-install
 
     - name: Source ROS2 workspace
       run: |
-        source /root/ros2_ws/install/setup.bash
+        bash -c "source /root/ros2_ws/install/setup.bash"  # bashでsourceを実行
 
     - name: Run the battery state publisher
       run: |
-        source /root/ros2_ws/install/setup.bash
-        ros2 run mypkg battery_state_publisher  # バッテリーステータスパブリッシャーを実行
+        bash -c "source /root/ros2_ws/install/setup.bash && ros2 run mypkg battery_state_publisher"  # bashで実行
 
     - name: Test battery state and level
       run: |
-        # トピックが発信されるか確認
-        ros2 topic echo /battery_state
-        ros2 topic echo /battery_level
+        bash -c "source /root/ros2_ws/install/setup.bash && ros2 topic echo /battery_state"
+        bash -c "source /root/ros2_ws/install/setup.bash && ros2 topic echo /battery_level"
 
