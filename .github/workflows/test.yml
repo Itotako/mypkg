@@ -1,29 +1,39 @@
-name: test
-on: push
+name: ROS2 CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
 jobs:
-  test:
-    runs-on: ubuntu-22.04
-    container: ryuichiueda/ubuntu22.04-ros2:latest
+  build-and-test:
+    runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      # rosdepの依存関係をインストール
-      - name: Install dependencies with rosdep
-        run: |
-          sudo apt update
-          sudo apt install -y python3-rosdep
-          
-          # 既存のrosdep設定ファイルを削除
-          sudo rm -f /etc/ros/rosdep/sources.list.d/20-default.list
-          
-          # rosdepの初期化と更新
-          sudo rosdep init
-          rosdep update
-          rosdep install --from-paths /root/ros2_ws/src --ignore-src -r -y
+    - name: Setup ROS2
+      uses: ros-tooling/setup-ros@v0.3
+      with:
+        required-ros-distributions: "humble" # 使用しているROS2のバージョンに応じて変更
 
-      - name: build and test
-        run: |
-          rsync -av ./ /root/ros2_ws/src/mypkg/
-          cd /root/ros2_ws
-          bash -xv ./src/mypkg/test/test.bash /root
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y python3-colcon-common-extensions
+        rosdep update
+        rosdep install --from-paths src --ignore-src -r -y
+
+    - name: Build workspace
+      run: |
+        colcon build
+
+    - name: Run tests
+      run: |
+        colcon test
+        colcon test-result --verbose
 
