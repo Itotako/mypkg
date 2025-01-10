@@ -11,12 +11,13 @@ jobs:
 
       - name: Setup ROS 2 Humble
         run: |
-          bash -c "source /opt/ros/humble/setup.bash"
+          echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+          source /opt/ros/humble/setup.bash
 
       - name: Prepare workspace
         run: |
           mkdir -p ~/ros2_ws/src
-          rsync -av ./ /root/ros2_ws/src/mypkg/
+          rsync -av ./ ~/ros2_ws/src/mypkg/
 
       - name: Install ROS 2 dependencies
         run: |
@@ -26,6 +27,9 @@ jobs:
 
       - name: Build and test
         run: |
-          cd /root/ros2_ws
-          bash -xv ./src/mypkg/test/test.bash /root
+          set -e
+          cd ~/ros2_ws
+          colcon build
+          source install/setup.bash
+          bash ./src/mypkg/test/test.bash
 
