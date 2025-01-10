@@ -11,39 +11,46 @@ dir=~
 cd $dir/ros2_ws
 
 # ワークスペースをビルドして環境をセットアップ
-colcon build
-source install/setup.bash
+echo "Building the workspace..."
+colcon build || { echo "Failed to build the workspace."; exit 1; }
+
+echo "Sourcing the ROS2 environment..."
+source install/setup.bash || { echo "Failed to source ROS2 setup."; exit 1; }
+
+# `ros2` コマンドが使用可能か確認
+command -v ros2 >/dev/null 2>&1 || { echo "ros2 command not found. Ensure ROS2 is correctly installed."; exit 1; }
 
 # ログファイルの設定
 LOG_FILE="/tmp/mypkg.log"
+echo "Log file: $LOG_FILE"
 
 # ノードを起動してログに出力
-timeout 20 ros2 launch mypkg battery_listen.launch.py > $LOG_FILE &
+echo "Launching ROS2 node..."
+timeout 20 ros2 launch mypkg battery_listen.launch.py > $LOG_FILE 2>&1 &
+LAUNCH_PID=$!
 
 # ノードの起動を確認
 sleep 5  # ノードが起動するのを待機
 
-# battery_stateトピックのデータ確認
-if grep -q "Publishing State:" $LOG_FILE; then
-  echo "battery_state トピックにデータがパブリッシュされています。"
-else
-  echo "battery_state トピックにデータがパブリッシュされていません！"
-  kill %1
-  exit 1
-fi
+# トピックのデータ確認
+check_topic() {
+  local topic_name="$1"
+  local message="$2"
+  if grep -q "$message" "$LOG_FILE"; then
+    echo "$topic_name トピックにデータがパブリッシュされています。"
+  else
+    echo "$topic_name トピックにデータがパブリッシュされていません！"
+    kill $LAUNCH_PID
+    exit 1
+  fi
+}
 
-# battery_levelトピックのデータ確認
-if grep -q "Publishing Battery Level:" $LOG_FILE; then
-  echo "battery_level トピックにデータがパブリッシュされています。"
-else
-  echo "battery_level トピックにデータがパブリッシュされていません！"
-  kill %1
-  exit 1
-fi
+check_topic "battery_state" "Publishing State:"
+check_topic "battery_level" "Publishing Battery Level:"
 
 # テスト成功
 echo "テストが成功しました！"
 
 # 起動したプロセスを終了
-kill %1
+kill $LAUNCH_PID
 
