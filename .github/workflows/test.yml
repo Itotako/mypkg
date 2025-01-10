@@ -19,6 +19,11 @@ jobs:
         with:
           required-ros-distributions: humble  # ROS2のバージョンを指定
 
+      - name: Add ROS2 GPG key and repository
+        run: |
+          sudo curl -sSL http://packages.ros.org/ros2/ubuntu/ros.key | sudo apt-key add -
+          echo "deb [arch=amd64] http://packages.ros.org/ros2/ubuntu $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/ros2-latest.list
+
       - name: Install dependencies
         run: |
           sudo apt-get update
