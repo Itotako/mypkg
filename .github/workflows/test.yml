@@ -11,7 +11,7 @@ jobs:
 
       - name: Setup ROS 2 Humble
         run: |
-          source /opt/ros/humble/setup.bash
+          bash -c "source /opt/ros/humble/setup.bash"
 
       - name: Prepare workspace
         run: |
@@ -24,14 +24,8 @@ jobs:
           rosdep update
           rosdep install --from-paths src --ignore-src -r -y
 
-      - name: Source ROS2 environment
-        run: |
-          echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
-          source /opt/ros/humble/setup.bash
-
       - name: Build and test
         run: |
-          source /opt/ros/humble/setup.bash
           cd /root/ros2_ws
           bash -xv ./src/mypkg/test/test.bash /root
 
