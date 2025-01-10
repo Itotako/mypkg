@@ -16,7 +16,7 @@ jobs:
       - name: Prepare workspace
         run: |
           mkdir -p ~/ros2_ws/src
-          rsync -av --exclude='.git' ./ ~/ros2_ws/src/mypkg
+          rsync -av ./ /root/ros2_ws/src/mypkg/
 
       - name: Install ROS 2 dependencies
         run: |
