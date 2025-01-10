@@ -26,7 +26,7 @@ jobs:
           sudo rosdep init
           rosdep update
           echo "source /opt/ros/humble/setup.bash" >> $GITHUB_ENV
-          echo "/opt/ros/humble/bin" >> $GITHUB_PATH
+        shell: bash  # シェルを明示的に指定
 
       - name: Setup workspace
         run: |
