@@ -18,11 +18,11 @@ jobs:
         uses: ros-tooling/setup-ros@v0.2
         with:
           use-ros2-testing: true
-          version: humble
+          required-ros-distributions: humble  # 'version'ではなく、この記述を使用
 
       - name: Install dependencies
         run: |
-          # GPGキーを追加する方法を更新
+          # GPGキーを追加
           curl -sSL http://packages.ros.org/ros2/ubuntu/ros.key | sudo tee /usr/share/keyrings/ros-archive-keyring.gpg > /dev/null
 
           # ROS2のリポジトリを追加
@@ -37,5 +37,4 @@ jobs:
 
       - name: Run tests
         run: |
-          colcon test --packages-select mypkg
-
+         colcon test --packages-select mypkg --event-handlers console_direct+
