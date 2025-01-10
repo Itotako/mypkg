@@ -12,7 +12,7 @@ def generate_launch_description():
         )
     listener = launch_ros.actions.Node(
         package='mypkg',
-        executable='btclistener',
+        executable='battery_listener',
         output='screen'        #ログを端末に出すための設定
         )
     return launch.LaunchDescription([talker, listener])   
