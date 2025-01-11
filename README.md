@@ -14,7 +14,7 @@
 ## 必要な環境
 - 以下の環境と条件を満たしている必要があります:
   - Ubuntu 20.04 (テスト環境: Ubuntu 22.04 LTS)
-  - ROS 2 (Foxy, Galactic, Humbleなど)
+  - ROS 2 (Foxy)
   - ACPIコマンドが利用可能な環境
 
 
@@ -24,11 +24,11 @@
 
 
 ## 使用方法
-1. ノードを起動します.
+1. 一つ目の端末でノードを起動します.
 ```bash
 ros2 run mypkg battery_state_publisher
 ```
-2. トピックを確認します.
+2. `1.`とは別の二つ目の端末でトピックを確認します.
   - `battery_state`:バッテリーの充電状態
   - `battery_level`:バッテリーの残量
 トピックのデータを受信するには以下を使用します.
@@ -37,10 +37,12 @@ ros2 topic echo /battery_state
 ros2 topic echo /battery_level
 ```
 
+
 ## コードの仕組み
 - `acpi`コマンドを使用して, バッテリー情報を取得します.
 - バッテリーの充電状態と残量をパースして, 各トピックにパブリッシュします.
 - バッテリー残量が20%以下になると, 警告をログに出力します.
+
 
 ## 注意事項
 - このプログラムは, `acpi`コマンドを使用してバッテリー情報を取得します. そのため, `acpi`がインストールされていない場合は以下のコマンドでインストールしてください.
@@ -52,6 +54,4 @@ sudo apt install acpi
 
 ## ライセンス
 - このソフトウェアパッケージは，**3条項BSDライセンス**の下，再頒布および使用が許可されます．
-- このパッケージのコードの一部は, 下記のスライド(CC-BY-SA 4.0 by ryuichi ueda)のものを本人の許可を得て自身の著作としたものです. 
-  - [ryuichiueda/slides_marp robosys2024](http://github.com/ryuichiueda/slides_marp/tree/master/robosys2024) 
 - © 2024 Kaito Ito
