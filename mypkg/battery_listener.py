@@ -1,13 +1,16 @@
+# SPDX-FileCopyrightText: 2025 Kaito Ito
+# SPDX-License-Identifier: BSD-3-Clause
+
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String  # 適宜、使用するメッセージ型に変更してください
+from std_msgs.msg import String
 
 class BatteryListener(Node):
     def __init__(self):
         super().__init__('battery_listener')
         self.subscription = self.create_subscription(
-            String,  # 使用するメッセージ型
-            'battery_state',  # サブスクライブするトピック名
+            String,
+            'battery_state',
             self.listener_callback,
             10  # キューサイズ
         )

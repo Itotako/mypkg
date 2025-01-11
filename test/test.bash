@@ -1,5 +1,5 @@
 #!/bin/bash
-# SPDX-FileCopyrightText: 2024 Kaito Ito
+# SPDX-FileCopyrightText: 2025 Kaito Ito
 # SPDX-License-Identifier: BSD-3-Clause
 
 set -e  # エラー発生時にスクリプトを停止
