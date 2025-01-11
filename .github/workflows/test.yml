@@ -25,8 +25,8 @@ jobs:
           # GPGキーを追加
           curl -sSL http://packages.ros.org/ros2/ubuntu/ros.key | sudo tee /usr/share/keyrings/ros-archive-keyring.gpg > /dev/null
 
-          # ROS2のリポジトリを追加（適切なリリース名を使用）
-          sudo sh -c "echo 'deb [signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -sc) main' > /etc/apt/sources.list.d/ros2-latest.list"
+          # ROS2のリポジトリを追加（手動でサポートされているバージョン名に変更）
+          sudo sh -c "echo 'deb [signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu jammy main' > /etc/apt/sources.list.d/ros2-latest.list"
 
           # パッケージリストを更新
           sudo apt-get update
