@@ -54,4 +54,4 @@ sudo apt install acpi
 
 ## ライセンス
 - このソフトウェアパッケージは，**3条項BSDライセンス**の下，再頒布および使用が許可されます．
-- © 2024 Kaito Ito
+© 2025 Kaito Ito
