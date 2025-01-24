@@ -1,11 +1,15 @@
 name: test
 on: push
 jobs:
-  test:
-    runs-on: ubuntu-20.04
+　test:
+    runs-on: ubuntu-22.04
     container: ryuichiueda/ubuntu22.04-ros2:latest
-    steps:
+    steps:　
       - uses: actions/checkout@v2
+      - name: Install ACPI
+        run: |
+          apt-get update
+          apt-get install -y acpi
       - name: build and test
         run: |
           rsync -av ./ /root/ros2_ws/src/mypkg/
