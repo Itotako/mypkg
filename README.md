@@ -1,6 +1,6 @@
 # バッテリー状態発信器
 
-![Test Battery State Publisher](https://github.com/Itotako/mypkg/actions/workflows/test.yml/badge.svg)
+[![test](https://github.com/Itotako/mypkg/actions/workflows/test.yml/badge.svg)](https://github.com/Itotako/mypkg/actions/workflows/test.yml)
 
 **このリポジトリは, ROS 2のノードとして動作する「Battery State Publisher」を提供します. このノードは, バッテリーの充電状態と残量を取得し, それぞれ別々のトピックにパブリッシュします.**
 
