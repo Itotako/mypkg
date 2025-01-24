@@ -3,32 +3,31 @@
 
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String
+from std_msgs.msg import String, Float32
 
-class BatteryListener(Node):
+class BatteryMonitor(Node):
     def __init__(self):
-        super().__init__('battery_listener')
-        self.subscription = self.create_subscription(
-            String,
-            'battery_state',
-            self.listener_callback,
-            10  # キューサイズ
-        )
-        self.subscription  # prevent unused variable warning
+        super().__init__('battery_monitor')
+        self.state_subscription = self.create_subscription(
+            String, 'battery_state', self.state_callback, 10)
+        self.level_subscription = self.create_subscription(
+            Float32, 'battery_level', self.level_callback, 10)
 
-    def listener_callback(self, msg):
-        self.get_logger().info(f'Received: {msg.data}')
+    def state_callback(self, msg):
+        self.get_logger().info(f'Received Battery State: {msg.data}')
+
+    def level_callback(self, msg):
+        if msg.data <= 20.0:
+            self.get_logger().warn(f'Battery Low: {msg.data}% remaining!')
+        else:
+            self.get_logger().info(f'Battery Level OK: {msg.data}%')
 
 def main(args=None):
     rclpy.init(args=args)
-    node = BatteryListener()
-    try:
-        rclpy.spin(node)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        node.destroy_node()
-        rclpy.shutdown()
+    monitor_node = BatteryMonitor()
+    rclpy.spin(monitor_node)
+    monitor_node.destroy_node()
+    rclpy.shutdown()
 
 if __name__ == '__main__':
     main()

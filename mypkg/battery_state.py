@@ -13,7 +13,6 @@ class BatteryStatePublisher(Node):
         self.level_publisher_ = self.create_publisher(Float32, 'battery_level', 10)
         self.timer = self.create_timer(1.0, self.timer_callback)
         self.mock_acpi_output = mock_acpi_output
-        self.get_logger().info('Battery State Publisher started!')
 
     def get_acpi_output(self):
         if self.mock_acpi_output is not None:
@@ -23,7 +22,6 @@ class BatteryStatePublisher(Node):
 
     def timer_callback(self):
         acpi_output = self.get_acpi_output()
-        self.get_logger().info(f'ACPI output: {acpi_output.strip()}')
 
         state = 'Unknown'
         battery_level = 0.0
@@ -38,18 +36,28 @@ class BatteryStatePublisher(Node):
             percentage = acpi_output[percentage_start:percentage_start + 3].strip()
             try:
                 battery_level = float(percentage.replace('%', ''))
-                if battery_level <= 20:
-                    self.get_logger().warn(f'Low Battery Warning: {battery_level}% remaining!')
             except ValueError:
-                self.get_logger().error('Failed to parse battery percentage.')
+                return
 
         state_msg = String()
         state_msg.data = state
         self.state_publisher_.publish(state_msg)
-        self.get_logger().info(f'Publishing State: {state_msg.data}')
 
         level_msg = Float32()
         level_msg.data = battery_level
         self.level_publisher_.publish(level_msg)
-        self.get_logger().info(f'Publishing Battery Level: {level_msg.data}%')
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = BatteryStatePublisher()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
 
